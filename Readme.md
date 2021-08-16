@@ -2,19 +2,19 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-16 18:12:24
+ * @LastEditTime: 2021-08-16 18:17:20
  * @Description: 
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
  * Copyright (c) 2021 Birdiebot R&D department
 -->
-BTP&DM
+Birdiebot Target Prception And Decision Making Framework
 ===
 Birdiebot目标感知与决策框架
 ---
-BTP&DM是一个针对RMUC/RMUL/RMUT开发的一款开源框架，你可以通过BTP&DM快速构建机器人。该项目受到上海工程技术大学上海市大学生创新创业基地木鸢机甲工作室的资助，参与该项目请联系zyhbum@foxmail.com
+Birdiebot目标感知与决策框架(Birdiebot Target Prception And Decision Making Framework, BTP&DM)是一个针对RMUC/RMUL/RMUT开发的一款开源框架，你可以通过BTP&DM快速构建机器人。该项目受到上海工程技术大学上海市大学生创新创业基地木鸢机甲工作室的资助，参与该项目请联系zyhbum@foxmail.com
 
-BTP&DM包含了一下内容：
+BTP&DM包含了以下内容：
 - BCP（Birdiebot Communication Protocol，birdiebot通讯协议）
 - 基于opencv的传统视觉目标特征检测，包含装甲板识别及能量机关识别
 - 对于赛场环境的决策处理
@@ -45,7 +45,7 @@ BTP&DM推荐使用PEP8编码规范编写的python代码，在开始修改BTP&DM�
 在编辑和维护BTP&DM前，请保证代码可读性和规范
 - 养成良好的命名规范，正确对变量名进行命名
 - 正确的引入需要的packages
-- 请确保所有模块、重要功能模块添加了注释，请使用_Strunk and White, The Elements of Style_中推荐的注释风格
+- 请确保所有模块、重要功能模块添加了注释，请使用 _Strunk and White, The Elements of Style_ 中推荐的注释风格
 - 对异常进行检查并抛出相应的异常信息，任何意外出现的异常都可能直接导致失去一局比赛
 
 详细的编码风格请参阅[PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
