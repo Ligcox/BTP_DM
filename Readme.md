@@ -2,7 +2,7 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-16 16:02:15
+ * @LastEditTime: 2021-08-16 18:08:56
  * @Description: 
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
@@ -51,18 +51,19 @@ BTP&DM使用 Apache Licence 2.0许可证，鼓励在尊重木鸢机甲工作室�
 - 《计算机信息网络国际联网安全保护管理办法》
 - 《计算机软件保护条例》
 
-
-[Birdiebot目标感知与决策框架](https://github.com/Ligcox/BTP_DM/wiki/Birdiebot%E7%9B%AE%E6%A0%87%E6%84%9F%E7%9F%A5%E4%B8%8E%E5%86%B3%E7%AD%96%E6%A1%86%E6%9E%B6)
-[BTPDM优化方向和Roadmap](https://github.com/Ligcox/BTP_DM/wiki/BTPDM%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91%E5%92%8CRoadmap)
-[功能模块：BCPloger及BCPViewer](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9ABCPloger%E5%8F%8ABCPViewer)
-[功能模块：任务调度器](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E5%99%A8)
-[功能模块：木鸢通讯协议](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE)
-[功能模块：能量机关识别及击打任务](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E8%83%BD%E9%87%8F%E6%9C%BA%E5%85%B3%E8%AF%86%E5%88%AB%E5%8F%8A%E5%87%BB%E6%89%93%E4%BB%BB%E5%8A%A1)
-[功能模块：装甲板识别及自瞄任务](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E8%A3%85%E7%94%B2%E6%9D%BF%E8%AF%86%E5%88%AB%E5%8F%8A%E8%87%AA%E7%9E%84%E4%BB%BB%E5%8A%A1)
-[性能分析](https://github.com/Ligcox/BTP_DM/wiki/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90)
-[文件目录结构及文件用途说明](https://github.com/Ligcox/BTP_DM/wiki/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%8F%8A%E6%96%87%E4%BB%B6%E7%94%A8%E9%80%94%E8%AF%B4%E6%98%8E)
-[木鸢通讯协议概述](https://github.com/Ligcox/BTP_DM/wiki/%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0)
-[测试分析及效果展示](https://github.com/Ligcox/BTP_DM/wiki/%E6%B5%8B%E8%AF%95%E5%88%86%E6%9E%90%E5%8F%8A%E6%95%88%E6%9E%9C%E5%B1%95%E7%A4%BA)
-[算法分析：位姿解算](https://github.com/Ligcox/BTP_DM/wiki/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%EF%BC%9A%E4%BD%8D%E5%A7%BF%E8%A7%A3%E7%AE%97)
-[系统框架概述](https://github.com/Ligcox/BTP_DM/wiki/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0)
-[设计思想与设计模式](https://github.com/Ligcox/BTP_DM/wiki/%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)
+wiki
+欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，其中包括了BTPDM的主要说明文档
+> [Birdiebot目标感知与决策框架](https://github.com/Ligcox/BTP_DM/wiki/Birdiebot%E7%9B%AE%E6%A0%87%E6%84%9F%E7%9F%A5%E4%B8%8E%E5%86%B3%E7%AD%96%E6%A1%86%E6%9E%B6)  
+> [BTPDM优化方向和Roadmap](https://github.com/Ligcox/BTP_DM/wiki/BTPDM%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91%E5%92%8CRoadmap)  
+> [功能模块：BCPloger及BCPViewer](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9ABCPloger%E5%8F%8ABCPViewer)  
+> [功能模块：任务调度器](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E5%99%A8)  
+> [功能模块：木鸢通讯协议](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE)  
+> [功能模块：能量机关识别及击打任务](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E8%83%BD%E9%87%8F%E6%9C%BA%E5%85%B3%E8%AF%86%E5%88%AB%E5%8F%8A%E5%87%BB%E6%89%93%E4%BB%BB%E5%8A%A1)  
+> [功能模块：装甲板识别及自瞄任务](https://github.com/Ligcox/BTP_DM/wiki/%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%9A%E8%A3%85%E7%94%B2%E6%9D%BF%E8%AF%86%E5%88%AB%E5%8F%8A%E8%87%AA%E7%9E%84%E4%BB%BB%E5%8A%A1)  
+> [性能分析](https://github.com/Ligcox/BTP_DM/wiki/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90)  
+> [文件目录结构及文件用途说明](https://github.com/Ligcox/BTP_DM/wiki/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%8F%8A%E6%96%87%E4%BB%B6%E7%94%A8%E9%80%94%E8%AF%B4%E6%98%8E)  
+> [木鸢通讯协议概述](https://github.com/Ligcox/BTP_DM/wiki/%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0)  
+> [测试分析及效果展示](https://github.com/Ligcox/BTP_DM/wiki/%E6%B5%8B%E8%AF%95%E5%88%86%E6%9E%90%E5%8F%8A%E6%95%88%E6%9E%9C%E5%B1%95%E7%A4%BA)  
+> [算法分析：位姿解算](https://github.com/Ligcox/BTP_DM/wiki/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%EF%BC%9A%E4%BD%8D%E5%A7%BF%E8%A7%A3%E7%AE%97)  
+> [系统框架概述](https://github.com/Ligcox/BTP_DM/wiki/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0)  
+> [设计思想与设计模式](https://github.com/Ligcox/BTP_DM/wiki/%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)  
