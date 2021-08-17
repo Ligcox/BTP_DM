@@ -2,7 +2,7 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-16 18:17:20
+ * @LastEditTime: 2021-08-17 17:22:52
  * @Description: 
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
@@ -24,9 +24,8 @@ BTP&DM包含了以下内容：
 wiki
 ---
 欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，你可以在这里发现BTPDM的详细框架设计及说明
-> [Birdiebot目标感知与决策框架概述](https://github.com/Ligcox/BTP_DM/wiki/Birdiebot%E7%9B%AE%E6%A0%87%E6%84%9F%E7%9F%A5%E4%B8%8E%E5%86%B3%E7%AD%96%E6%A1%86%E6%9E%B6)  
-> [文件目录结构及文件用途说明](https://github.com/Ligcox/BTP_DM/wiki/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%8F%8A%E6%96%87%E4%BB%B6%E7%94%A8%E9%80%94%E8%AF%B4%E6%98%8E)  
 > [系统框架概述](https://github.com/Ligcox/BTP_DM/wiki/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0)  
+> [文件目录结构及文件用途说明](https://github.com/Ligcox/BTP_DM/wiki/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%8F%8A%E6%96%87%E4%BB%B6%E7%94%A8%E9%80%94%E8%AF%B4%E6%98%8E)  
 > [设计思想与设计模式](https://github.com/Ligcox/BTP_DM/wiki/%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)  
 > [木鸢通讯协议概述](https://github.com/Ligcox/BTP_DM/wiki/%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0)  
 > [性能分析](https://github.com/Ligcox/BTP_DM/wiki/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90)  
