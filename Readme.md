@@ -2,7 +2,7 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-17 17:22:52
+ * @LastEditTime: 2021-08-20 00:40:19
  * @Description: 
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
@@ -21,10 +21,16 @@ BTP&DM包含了以下内容：
 - BCPViewer对使用BCP数据的实时UI显示
 - 使用深度学习完成目标识别与分类
 
-wiki
+教程及wiki
 ---
-欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，你可以在这里发现BTPDM的详细框架设计及说明
+为了帮助快速上手BTPDM，你可以参考下面的视频教程：
+> [【SUES木鸢机甲工作室】RoboMaster算法组基础培训](https://www.bilibili.com/video/BV1La4y1475w)
+> [【SUES木鸢机甲工作室】RoboMasterBTPDM开源框架讲解（更新中...）](https://www.bilibili.com/video/BV1m64y1t7qb)
+> [2021RoboMaster青年工程师大会哨兵机器人答辩](https://www.bilibili.com/video/BV1nq4y1n7JV?p=7)
+
+欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，你可以在这里发现BTPDM的详细框架设计及功能模块说明
 > [系统框架概述](https://github.com/Ligcox/BTP_DM/wiki/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0)  
+> [环境配置和依赖工具](https://github.com/Ligcox/BTP_DM/wiki/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%92%8C%E4%BE%9D%E8%B5%96%E5%B7%A5%E5%85%B7)
 > [文件目录结构及文件用途说明](https://github.com/Ligcox/BTP_DM/wiki/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%8F%8A%E6%96%87%E4%BB%B6%E7%94%A8%E9%80%94%E8%AF%B4%E6%98%8E)  
 > [设计思想与设计模式](https://github.com/Ligcox/BTP_DM/wiki/%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)  
 > [木鸢通讯协议概述](https://github.com/Ligcox/BTP_DM/wiki/%E6%9C%A8%E9%B8%A2%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0)  
