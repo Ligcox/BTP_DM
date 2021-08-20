@@ -2,17 +2,17 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-20 16:45:37
+ * @LastEditTime: 2021-08-20 20:36:26
  * @Description: Readmefile
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
  * Copyright (c) 2021 Birdiebot R&D department
 -->
-Birdiebot Target Prception And Decision Making Framework
+Birdiebot Target perception And Decision Making Framework
 ===
 Birdiebot目标感知与决策框架
 ---
-Birdiebot目标感知与决策框架(Birdiebot Target Prception And Decision Making Framework, BTP&DM)是一个针对RMUC/RMUL/RMUT开发的一款开源框架，你可以通过BTP&DM快速构建机器人。该项目受到上海工程技术大学上海市大学生创新创业基地木鸢机甲工作室的资助，参与该项目请联系zyhbum@foxmail.com
+Birdiebot目标感知与决策框架(Birdiebot Target perception And Decision Making Framework, BTP&DM)是一个针对RMUC/RMUL/RMUT开发的一款开源框架，你可以通过BTP&DM快速构建机器人。该项目受到上海工程技术大学上海市大学生创新创业基地木鸢机甲工作室的资助，参与该项目请联系zyhbum@foxmail.com
 
 BTP&DM包含了以下内容：
 - 高度解耦的模块化设计能够通过在框架中添加不同层的方式实现新的任务
