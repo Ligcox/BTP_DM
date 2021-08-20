@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-10 15:22:07
+LastEditTime: 2021-08-20 16:42:55
 Description: The principal implementation of the classifier
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -19,6 +19,11 @@ from tensorflow.keras.preprocessing import image
 
 class NumClassifier(object):
     def __init__(self):
+        '''
+        description: 装甲板数字分类器
+        param {*}
+        return {*}
+        '''
         self.model = tf.keras.models.load_model(r'src/saved_model')
         from tensorflow.python.client import device_lib
         print(device_lib.list_local_devices())
@@ -27,6 +32,11 @@ class NumClassifier(object):
         # print(self.model.summary())
 
     def process(self, image, armour_list):
+        '''
+        description: 获取装甲板数据转换成数字信息
+        param {*image: 图像数据, *armour_list: 装甲板list}
+        return {*}
+        '''
         frame = cv2.cvtColor(ImageCrop, cv2.COLOR_BGR2HSV)
         final_mask = np.ones(frame.shape[:2], np.uint8)*255
         _, low_mask = cv2.threshold(
@@ -51,9 +61,11 @@ class NumClassifier(object):
             return 0
 
     def cropImage(self, image, boxes, dis):
-        """
-        图像截取，截取出数字部分
-        """
+        '''
+        description: 图像截取，截取出数字部分
+        param {*image:图像数据, boxes: 装甲板boxs信息, dis: 装甲板距离}
+        return {*}
+        '''
         width, height = 64, 64  # 截取图片的宽和高
         boxes = boxes.tolist()
         a = 25 - int(dis / 250)
@@ -68,9 +80,11 @@ class NumClassifier(object):
         return ImageCrop
 
     def getImgClass(self, img):
-        """
-        数字分类
-        """
+        '''
+        description: 获取裁剪的图像中数字信息
+        param {*}
+        return {*}
+        '''
         try:
             # img_cpd = copy.deepcopy(img)
             # img = cv2.resize(img, (64, 64))

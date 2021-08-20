@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-20 02:41:15
+LastEditTime: 2021-08-20 16:38:44
 Description: The principal implementation of Birdiebot Communication Protocol
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -15,6 +15,11 @@ from config.connConfig import *
 
 class Connection(object):
     def __init__(self, p=PORTX, b=BPS, to=TIMEX):
+        '''
+        description: USART设备类，相关配置请在/src/config/devConfig.py配置
+        param {*p: com口设备号, b: 波特率, to: 超时时间}
+        return {*}
+        '''
         self.device = serial.Serial(port=p, baudrate=b, timeout=to)
         self.stop_flag = False
 
@@ -31,29 +36,47 @@ class Connection(object):
         self.start()
 
     def start(self):
+        '''
+        description: 线程开始方法
+        param {*}
+        return {*}
+        '''
         self.stop_flag = False
         self.rx_thread.start()
         self.tx_thread.start()
 
     def stop(self):
+        '''
+        description: 线程结束方法
+        param {*}
+        return {*}
+        '''
         self.stop_flag = True
         self.rx_thread.join()
 
     def reset_rx_buffer(self):
+        '''
+        description: 重置接收buffer
+        param {*}
+        return {*}
+        '''
         self.current_packet = copy.deepcopy(D_INFO)
         self.rx_status = 0
         self.rx_datalen = 0
 
     def rx_function(self):
+        '''
+        description: UART接收及处理
+        param {*}
+        return {*}
+        '''
         rx_bytes = self.device.readall()
-        # print(len(rx_bytes))
         for rx_byte in rx_bytes:
             if self.rx_status == 0:  # 等待HEAD
                 if rx_byte == D_INFO["HEAD"]:
                     self.rx_status = 1
             elif self.rx_status == 1:  # 等待D_ADDR
                 if rx_byte ==  D_ADDR["mainfold"]:
-                # if rx_byte ==  D_ADDR["infantry"]:
                     self.current_packet["D_ADDR"] = rx_byte
                     self.rx_status = 2
                 else:
@@ -87,12 +110,22 @@ class Connection(object):
 
     @loger.AngleLoger
     def gimbalAnalysis(self, bcpframe):
+        '''
+        description: 云台BCP数据解析
+        param {*}
+        return {*}
+        '''
         self.status["yaw_angle"] = struct.pack("h", bcpframe["DATA"][0], bcpframe["DATA"][1]) /1000
         self.status["pitch_angle"] = struct.pack("h", bcpframe["DATA"][2], bcpframe["DATA"][3]) /1000
         return self.status["yaw_angle"], self.status["pitch_angle"]
 
 
     def bcpAnalysis(self):
+        '''
+        description: BCP数据解析
+        param {*}
+        return {*}
+        '''
         bcpframe = self.rx_queue.get(False)
         if bcpframe["ID"] == ID["manifold_ctrl"]:
             self.status["mode"] = bcpframe["DATA"][0]
@@ -109,6 +142,11 @@ class Connection(object):
             self.gimbalAnalysis(bcpframe)
 
     def tx_function(self):
+        '''
+        description: USART发送方法
+        param {*}
+        return {*}
+        '''
         while not self.stop_flag:
             while len(self.tx_queue) != 0:
                 tx_packet = self.tx_queue.pop()
@@ -116,19 +154,38 @@ class Connection(object):
             time.sleep(getThreadingSleepTime("tx_threading"))
 
     def send(self, tx_packet):
+        '''
+        description: 将数据放入发送buffer
+        param {*tx_packet: 发送的数据}
+        return {*}
+        '''
         self.tx_queue.append(copy.deepcopy(tx_packet))
 
     def receive(self):
-        self.id2 = 0
+        '''
+        description: UAST接收方法
+        param {*}
+        return {*}
+        '''
         while not self.stop_flag:
             self.rx_function()
             time.sleep(getThreadingSleepTime("rx_threading"))
 
 class SerialInfo(object):
     def __init__(self):
+        '''
+        description: UART信息
+        param {*} self
+        return {*}
+        '''
         self.INFO = copy.deepcopy(D_INFO)
 
     def getInfo(self):
+        '''
+        description: 获取BCP数据帧的bytes数据
+        param {*}
+        return {*}
+        '''
         return bytearray([
             self.INFO["HEAD"],
             self.INFO["D_ADDR"],
@@ -142,6 +199,11 @@ class SerialInfo(object):
 
 class Robot(SerialInfo):
     def __init__(self, conn: Connection, name=None, data=None):
+        '''
+        description: 机器人通讯对象，其他机器人应该由该类派生
+        param {*}
+        return {*}
+        '''
         super().__init__()
         self.name = name
         self.initRobot()
@@ -154,14 +216,29 @@ class Robot(SerialInfo):
         self.status = conn.status
 
     def __call__(self, idx, identif, data):
+        '''
+        description: 临时发送到其他机器人数据方法
+        param {*}
+        return {*}
+        '''
         self.setID(idx)
         self.setDATA(identif, data)
         return self.getInfo()
 
     def setID(self, idx):
+        '''
+        description: 设置机器人id
+        param {*idx：BCP定义的机器人id}
+        return {*}
+        '''
         self.INFO["ID"] = ID[idx]
 
     def setDATA(self, identif, data):
+        '''
+        description: 设置机器人数据
+        param {*}
+        return {*}
+        '''
         identif = "<" + identif
         if isinstance(data, int):
             self.INFO["DATA"] = struct.pack(identif, data)
@@ -173,6 +250,11 @@ class Robot(SerialInfo):
         self.INFO["SUM_CHECK"], self.INFO["ADD_CHECK"] = sumcheck_cal(self.INFO)
 
     def initRobot(self):
+        '''
+        description: 初始化机器人目标地址
+        param {*}
+        return {*}
+        '''
         self.INFO["D_ADDR"] = D_ADDR[self.name]
 
     @loger.ModeLoger
@@ -235,7 +317,8 @@ class Robot(SerialInfo):
     # @loger.PathwayLoger
     def devError(self, stu): 
         '''
-        @brief: 控制轨道:0xAA不处理轨道信息 0x00(弹丸在正中央) 0x01(弹丸在右侧) -0x01(弹丸在左侧)
+        @brief: 设备故障函数
+        @param: stu:故障线程id
         '''
         self.setID("deverror")
         self.setDATA("b", stu)

@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-10 15:20:06
+LastEditTime: 2021-08-20 16:15:36
 Description: Program decision level, all robot decision information should be processed by this module and then sent.
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -17,6 +17,11 @@ from config.config import *
 
 class Decision(module):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 决策层类
+        param {*}
+        return {*}
+        '''
         super().__init__(hide_controls)
         self.robot = robot
         self.armour_time_queue = Queue()
@@ -40,6 +45,11 @@ class Decision(module):
         return None
 
     def gimbal_filter_Kalman_init(self):
+        '''
+        description: 卡尔曼滤波函数初始化
+        param {*}
+        return {*}
+        '''
         # 初始化测量坐标和鼠标运动预测的数组
         self.last_measurement = self.current_measurement = np.array(
             (2, 1), np.float32)
@@ -56,6 +66,11 @@ class Decision(module):
             0, 0, 0, 1]], np.float32) * 0.03  # 系统过程噪声协方差
 
     def gimbal_filter_Kalman(self, yaw, pitch):
+        '''
+        description: 卡尔曼滤波函数
+        param {*yaw: 云台偏转yaw角度, *pitch: 云台偏转pitch角度}
+        return {*cpx: 补偿后的云台偏转yaw角度, *cpy:补偿后的云台偏转pitch角度}
+        '''
         self.last_prediction = self.current_prediction  # 把当前预测存储为上一次预测
         self.last_measurement = self.current_measurement  # 把当前测量存储为上一次测量
         self.current_measurement = np.array(
@@ -107,6 +122,11 @@ class Decision(module):
         return NeedAngle
 
     def pnp_error_compensation(self, ROI_RECT, distance):
+        '''
+        description: pnp解算远距离是预测位置偏下额外做补偿
+        param {*ROI_RECT: 装甲板RECT信息, distance: 装甲板距离}
+        return {*}
+        '''
         w, h = 640, 480
         x, y = ROI_RECT[0]
         x, y = x-w/2, y-h/2
@@ -122,7 +142,7 @@ class Decision(module):
     def differential_filter(self, yaw_speed, pitch_spend):
         '''
         @description: 通过两次目标之间的差分获得此次击打目标的提前量
-        @param {*}
+        @param {*yaw_speed: 当前yaw信息, *pitch_spend: 当前pitch信息}
         @return {*}
         '''
         d_y = yaw_speed - (self.last_yaw_angle)
@@ -136,6 +156,11 @@ class Decision(module):
         return yaw_speed, pitch_spend
 
     def gimbal_send(self, mode, yaw_angle, pitch_angle, isShoot):
+        '''
+        description: 将yaw_angle, pitch_angle, isShoot三个数据打包直接发送
+        param {*}
+        return {*}
+        '''
         self.robot.mode_ctrl(mode)
         self.robot.gimbal(yaw_angle, pitch_angle)
         self.robot.barrel(30, isShoot)
@@ -143,6 +168,11 @@ class Decision(module):
 
 class SentryDecision(Decision):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 哨兵决策层，若有多个云台应该由该类派生
+        param {*}
+        return {*}
+        '''
         super().__init__(robot, hide_controls=hide_controls)
 
     def armour_process(self, armour_list):
@@ -204,6 +234,11 @@ class SentryDecision(Decision):
 
 class SentryDownDecision(SentryDecision):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 哨兵下云台决策层
+        param {*}
+        return {*}
+        '''
         self.controls = sentryDown_decision_controls
         self.name = "sentryDown_decision"
         super().__init__(robot, hide_controls)
@@ -211,6 +246,11 @@ class SentryDownDecision(SentryDecision):
 
 class SentryUpDecision(SentryDecision):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 哨兵上云台决策层
+        param {*}
+        return {*}
+        '''
         self.controls = sentryUp_decision_controls
         self.name = "sentryUp_decision"
         super().__init__(robot, hide_controls)
@@ -218,6 +258,11 @@ class SentryUpDecision(SentryDecision):
 
 class GroundDecison(Decision):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 地面机器人决策层，其他地面机器人应该由该类派生
+        param {*}
+        return {*}
+        '''
         super().__init__(robot, hide_controls=hide_controls)
 
     def armour_process(self, armour_list):
@@ -260,6 +305,11 @@ class GroundDecison(Decision):
 
 class HeroDecision(GroundDecison):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 英雄机器人决策层
+        param {*}
+        return {*}
+        '''
         self.controls = hero_decision_controls
         self.name = "hero_decision"
         self.armour_time_queue = Queue()
@@ -268,6 +318,11 @@ class HeroDecision(GroundDecison):
 
 class InfantryDecision(GroundDecison):
     def __init__(self, robot, hide_controls=False):
+        '''
+        description: 步兵机器人决策层
+        param {*}
+        return {*}
+        '''
         self.controls = decision_controls
         self.name = "infantry_decision"
         self.armour_time_queue = Queue()
