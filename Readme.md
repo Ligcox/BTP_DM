@@ -2,8 +2,8 @@
  * @Author: Ligcox
  * @Date: 2021-04-06 15:20:21
  * @LastEditors: Ligcox
- * @LastEditTime: 2021-08-20 00:40:19
- * @Description: 
+ * @LastEditTime: 2021-08-20 01:06:26
+ * @Description: Readmefile
  * Apache License  (http://www.apache.org/licenses/)
  * Shanghai University Of Engineering Science
  * Copyright (c) 2021 Birdiebot R&D department
@@ -24,9 +24,9 @@ BTP&DM包含了以下内容：
 教程及wiki
 ---
 为了帮助快速上手BTPDM，你可以参考下面的视频教程：
-> [【SUES木鸢机甲工作室】RoboMaster算法组基础培训](https://www.bilibili.com/video/BV1La4y1475w)
-> [【SUES木鸢机甲工作室】RoboMasterBTPDM开源框架讲解（更新中...）](https://www.bilibili.com/video/BV1m64y1t7qb)
-> [2021RoboMaster青年工程师大会哨兵机器人答辩](https://www.bilibili.com/video/BV1nq4y1n7JV?p=7)
+> [【SUES木鸢机甲工作室】RoboMaster算法组基础培训](https://www.bilibili.com/video/BV1La4y1475w)  
+> [【SUES木鸢机甲工作室】RoboMasterBTPDM开源框架讲解（更新中...）](https://www.bilibili.com/video/BV1m64y1t7qb)  
+> [2021RoboMaster青年工程师大会哨兵机器人答辩](https://www.bilibili.com/video/BV1nq4y1n7JV?p=7)  
 
 欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，你可以在这里发现BTPDM的详细框架设计及功能模块说明
 > [系统框架概述](https://github.com/Ligcox/BTP_DM/wiki/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0)  
@@ -47,7 +47,7 @@ BTP&DM包含了以下内容：
 编码风格指南
 ---
 BTP&DM推荐使用PEP8编码规范编写的python代码，在开始修改BTP&DM前，请谨记：**A Foolish Consistency is the Hobgoblin of Little Minds**  
-在编辑和维护BTP&DM前，请保证代码可读性和规范
+在编辑和维护BTP&DM前，请保证代码可读性和规范，BTP&DM使用PEP-8编码风格
 - 养成良好的命名规范，正确对变量名进行命名
 - 正确的引入需要的packages
 - 请确保所有模块、重要功能模块添加了注释，请使用 _Strunk and White, The Elements of Style_ 中推荐的注释风格

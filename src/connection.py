@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-12 01:54:44
+LastEditTime: 2021-08-20 02:41:15
 Description: The principal implementation of Birdiebot Communication Protocol
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -62,7 +62,7 @@ class Connection(object):
                 self.current_packet["ID"] = rx_byte
                 self.rx_status = 3
             elif self.rx_status == 3:  # 等待LEN
-                # 貌似python3直接转换byte->int，有问题自己纠正
+                # 貌似python3直接转换byte->int
                 self.current_packet["LEN"] = rx_byte
                 if rx_byte == 0:
                     self.rx_status = 5
@@ -83,8 +83,6 @@ class Connection(object):
                 if rx_byte == self.current_packet["ADD_CHECK"]:
                     self.rx_queue.put(copy.deepcopy(self.current_packet))
                     self.bcpAnalysis()
-                    # self.id2 += 1
-                    # print(self.id2, self.current_packet)
                 self.reset_rx_buffer()  # 校验失败或者成功后都需要重设
 
     @loger.AngleLoger
@@ -114,13 +112,6 @@ class Connection(object):
         while not self.stop_flag:
             while len(self.tx_queue) != 0:
                 tx_packet = self.tx_queue.pop()
-                # print(tx_packet)
-                # if tx_packet[2] == 0x02:
-                #     print("gimbal", tx_packet)
-                # if tx_packet[2] == 0x06:
-                    # print( "mode ctrl",tx_packet[3])
-                # if tx_packet[2] == 0xAA:
-                #     print( "heartbeat",tx_packet)
                 self.device.write(tx_packet)
             time.sleep(getThreadingSleepTime("tx_threading"))
 
@@ -171,7 +162,6 @@ class Robot(SerialInfo):
         self.INFO["ID"] = ID[idx]
 
     def setDATA(self, identif, data):
-        # print(data)
         identif = "<" + identif
         if isinstance(data, int):
             self.INFO["DATA"] = struct.pack(identif, data)

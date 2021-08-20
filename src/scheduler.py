@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-19 20:44:55
 LastEditors: Ligcox
-LastEditTime: 2021-08-16 14:40:28
+LastEditTime: 2021-08-20 01:18:25
 Description: Framework core control. Perform the required tasks by BCP according to the different environments on RoboMaster field.
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -22,20 +22,45 @@ import logging
 
 class Scheduler(object):
     def __init__(self):
+        '''
+        description:任务调度器基类，所有机器人调度器应该由该类派生 
+        param {*}
+        return {*}
+        '''        
         self.vIn = vInput(source, False)
         self.conn = Connection()
 
     def callback(object):
+        '''
+        description: 回调函数
+        param {*}
+        return {*}
+        '''
         pass
 
     def run(self):
+        '''
+        description: 函数主线程入口，该方法应该由字类重写，使核心任务在的run方法中运行
+        param {*}
+        return {*}
+        '''
         return None
 
     def __enter__(self):
+        '''
+        description: 上下文管理器入口
+        param {*}
+        return {*}
+        '''
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         print(exc_type, exc_value, traceback.tb_frame)
+        '''
+        description:上下文管理器出口，该函数会将程序退出时发生的错误打印并执行任务清理 
+        param {*}
+        return {*}
+        '''
         call_cnt = 20
         while call_cnt>0:
             print(str(traceback.tb_frame))
@@ -45,8 +70,12 @@ class Scheduler(object):
                 call_cnt-=1
         self.cleanup()
 
-    # 结束任务时的清理程序
     def cleanup(self):
+        '''
+        description: 结束任务时的清理程序
+        param {*}
+        return {*}
+        '''
         cv2.destroyAllWindows()
         self.vIn.stop()
         self.conn.stop()
@@ -55,6 +84,11 @@ class Scheduler(object):
 
 class SentrySchedule(Scheduler):
     def __init__(self):
+        '''
+        description: 哨兵机器人任务调度器，如果哨兵机器人拥有多云台，请从此类进行派生
+        param {*}
+        return {*}
+        '''
         super().__init__()
         self.cFilter = colorFilter(False)
         self.sDetector = simpleDetector(False)
@@ -62,7 +96,9 @@ class SentrySchedule(Scheduler):
 
     def task_auto_aiming(self, isClassifier=False):
         '''
-        :breif: 哨兵自瞄任务，在发现目标时对目标进行击打
+        description:哨兵自瞄任务 
+        param {*isClassifier:是否使用分类器对装甲板进行分类}
+        return {*}
         '''
         filtered_frame = self.cFilter.process(self.frame, "hsv")
         armour_list, lightstrips_num = self.sDetector.process(filtered_frame)
@@ -70,7 +106,6 @@ class SentrySchedule(Scheduler):
             armour_list = self.classifier.process(armour_list)
         decision_info = self.robot_decision.armour_process(armour_list)
         yaw_angle, pitch_angle, isShoot = decision_info
-        # lightstrips_num, yaw_angle, pitch_angle, isShoot = 2,0,0,1
 
         if lightstrips_num != 0 and isShoot == 0xFF:
             self.robot.mode_ctrl(2)
@@ -84,6 +119,11 @@ class SentrySchedule(Scheduler):
 
 class SentryDownScheduler(SentrySchedule):
     def __init__(self):
+        '''
+        description:哨兵下云台任务调度器 
+        param {*}
+        return {*}
+        '''        
         super().__init__()
         self.robot = Sentry_down(self.conn)
         self.robot_decision = decision.SentryDownDecision(self.robot)
@@ -109,13 +149,16 @@ class SentryDownScheduler(SentrySchedule):
 
 class SentryUpScheduler(SentrySchedule):
     def __init__(self):
+        '''
+        description:哨兵上云台任务调度器
+        param {*}
+        return {*}
+        '''
         super().__init__()
         self.robot = Sentry_up(self.conn)
         self.robot_decision = decision.SentryUpDecision(self.robot)
-        # from classifier import NumClassifier
-        # self.classifier = NumClassifier()
-        # from autoDodge import AutoDodge
-        # self.realsense = AutoDodge(self.robot)
+        from classifier import NumClassifier
+        self.classifier = NumClassifier()
 
 def run(self):
     os.system('cls' if os.name == 'nt' else "printf '\033c'")
@@ -156,6 +199,11 @@ def main_task(self):
 
 class GroundSchedule(Scheduler):
     def __init__(self):
+        '''
+        description: 地面机器人任务调度器，其他地面机器人应该从该类派生
+        param {*}
+        return {*}
+        '''
         super().__init__()
         self.cFilter = colorFilter(False)
         self.sDetector = simpleDetector(False)
@@ -178,6 +226,11 @@ class GroundSchedule(Scheduler):
 
 class HeroScheduler(GroundSchedule):
     def __init__(self):
+        '''
+        description: 英雄机器人任务调度器
+        param {*}
+        return {*}
+        '''
         super().__init__()
         self.robot = Hero(self.conn)
         self.robot_decision = decision.HeroDecision(self.robot)
@@ -205,6 +258,11 @@ class HeroScheduler(GroundSchedule):
 class InfantryScheduler(GroundSchedule):
     def __init__(self):
         super().__init__()
+        '''
+        description: 步兵机器人任务调度器
+        param {*}
+        return {*}
+        '''
         self.eFilter = EnergyColorFilter(False)
         self.eDetector = EnergyDetector()
 
@@ -247,6 +305,11 @@ class InfantryScheduler(GroundSchedule):
 
 class RadarScheduler(object):
     def __init__(self):
+        '''
+        description: 雷达任务调度器，这个部分仅仅简单实现功能，后续完善
+        param {*}
+        return {*}
+        '''
         self.vIn = RadarVInput(source, False)
 
     def run(self):

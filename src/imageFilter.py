@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-10 15:18:36
+LastEditTime: 2021-08-20 01:24:33
 Description: Color filter, through the inheritance of Class 'imageFilter', realize the color filtering in different scenarios
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -14,6 +14,11 @@ from config.config import *
 
 
 class imageFilter(module):
+    '''
+    description: 过滤器基类
+    param {*}
+    return {*}
+    '''
     name = "Empty Filter Control"
 
     def process(self, frame):
@@ -22,11 +27,21 @@ class imageFilter(module):
 
 class colorFilter(imageFilter):
     def __init__(self, hide_controls=True):
+        '''
+        description: 颜色过滤器
+        param {*hide_controls: 是否因此控制栏}
+        return {*}
+        '''
         self.controls = channel_filter_controls
         self.name = "ColorFilter"
         super().__init__(hide_controls)
 
     def process(self, frame, colorSpace):
+        '''
+        description: 重写至imageFilter方法，通过阈值对图片进行二值化
+        param {*colorSpace: 可选的颜色空间，目前支持rgb空间和hsv空间}
+        return {*}
+        '''
         # Hard code channel number
         NUM_CHANNEL = 3
         if not frame.shape[2] == NUM_CHANNEL:
@@ -71,6 +86,11 @@ class colorFilter(imageFilter):
         return output
 
     def updateProcess(self, final_mask, channel_masks, colorSpace):
+        '''
+        description: 显示二值化后的图像 
+        param {*final_mask：最终阈值分割的mask, *channel_masks：各个通道的mask, *colorSpace：颜色空间}
+        return {*}
+        '''
         if not (self.getControlVal('silent') or (final_mask is None)):
             if colorSpace == "rgb":
                 blueMask = channel_masks[0].copy()
@@ -111,11 +131,21 @@ class colorFilter(imageFilter):
 
 class EnergyColorFilter(imageFilter):
     def __init__(self, hide_controls=True):
+        '''
+        description: 能量机关识别过滤器
+        param {*hide_controls: 是否隐藏控制栏}
+        return {*}
+        '''
         self.controls = energy_filter_controls
         self.name = "EnergyFilter"
         super().__init__(hide_controls)
 
     def process(self, frame):
+        '''
+        description: 能量机关颜色过滤器
+        param {*}
+        return {*}
+        '''
         # frame = aug(frame, self.getControlVal("aug"))
         grayImage = self.splitChannel(frame)
         binaryImgByRGB = self.RGBFilter(grayImage)
@@ -128,19 +158,20 @@ class EnergyColorFilter(imageFilter):
         self.updateProcess("finalMask", finalMask)
         return finalMask, frame
 
-
-
-
     def splitChannel(self, frame):
-        # 分离通道
+        '''
+        description: 分离通道
+        param {*frame:图像数据}
+        return {*}
+        '''        
         bChannel, gChannel, rChannel = cv2.split(frame)
         return gChannel
 
     def RGBFilter(self, grayImage):
         """
-        RGB空间滤波器
-        :param grayImage: 灰度图
-        :return: 二值图
+        description: RGB空间滤波器
+        param: grayImage: 灰度图
+        return: 二值图
         """
         ret, binaryImgByRGB = cv2.threshold(grayImage, self.getControlVal('threshold'), 255, cv2.THRESH_BINARY)  # 二值化图像
         self.updateProcess("BinaryImgByRGB", binaryImgByRGB, True)
@@ -148,7 +179,7 @@ class EnergyColorFilter(imageFilter):
 
     def HSVFilter(self, frame):
         """
-        HSV空间滤波器
+        description: HSV空间滤波器
         :param frame: 三通道BGR图
         :return: 二值图
         """

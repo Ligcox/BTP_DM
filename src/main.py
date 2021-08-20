@@ -2,7 +2,7 @@
 Author: Ligcox
 Date: 2021-04-06 15:20:21
 LastEditors: Ligcox
-LastEditTime: 2021-08-10 15:17:08
+LastEditTime: 2021-08-20 01:18:46
 Description: Program main entry, by initializing different types of robot scheduler to perform different tasks.
 Apache License  (http://www.apache.org/licenses/)
 Shanghai University Of Engineering Science
@@ -22,5 +22,6 @@ scheduler = SentryUpScheduler
 # scheduler = InfantryScheduler
 # scheduler = RadarScheduler
 
+# 通过任务调度器开启任务
 with scheduler() as sch:
     sch.run()

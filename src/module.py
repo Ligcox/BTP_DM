@@ -1,3 +1,13 @@
+'''
+Author: Li
+Date: 2021-04-06 15:20:21
+LastEditors: Ligcox
+LastEditTime: 2021-08-20 01:07:39
+Description: module
+Apache License  (http://www.apache.org/licenses/)
+Shanghai University Of Engineering Science
+Copyright (c) 2021 Birdiebot R&D department
+'''
 from config import *
 from utils import *
 from config.config import *
