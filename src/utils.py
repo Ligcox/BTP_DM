@@ -1,13 +1,3 @@
-'''
-Author: Ligcox
-Date: 2021-04-06 15:20:21
-LastEditors: Ligcox
-LastEditTime: 2021-08-10 15:26:22
-Description: General function. Includes the parts of each component needed to call a function.
-Apache License  (http://www.apache.org/licenses/)
-Shanghai University Of Engineering Science
-Copyright (c) 2021 Birdiebot R&D department
-'''
 import cv2
 import numpy as np
 import time
@@ -31,8 +21,17 @@ from config.config import *
 from config.devConfig import *
 from BCPloger import BCPloger
 
+timeList = []
+posList = []
+velocityList = []
+pointList = []
+circleCenterPosList = []
+TarData = []
+Wise = [0]
+cnt = [0]
 
 loger = BCPloger()
+
 
 # 基于角度(Degrees)的三角函数，大部分语言都使用弧度(Radians)作为标准
 def sind(x):
@@ -59,6 +58,8 @@ def getCv2RotatedRectAngleDifference(rect1, rect2):
 
 # 找到两个Rect中心点的距离与较大Rect长边的比值
 # TODO: 检测Rect中心点连线与较大Rect长边的夹角
+
+
 def getCv2RotatedRectDistanceRatio(rect1, rect2):
     try:
         distance = np.sqrt(sum((np.array(rect1[0]) - np.array(rect2[0])) ** 2))
@@ -73,6 +74,8 @@ def getCv2RotatedRectDistanceRatio(rect1, rect2):
 
 
 # 找到Rect以较长边h时的倾角(也就是该Rect,aka 灯条 的朝向)
+
+
 def getCv2RotatedRectOrientation(rect):
     val = rect[2]
     w, h = rect[1]
@@ -149,9 +152,16 @@ def boxPoints2ublr(box):
         ])
     return vertices
 
+
+_t = []
+
+
 def debug_show_window(winname, mtx):
     if DEBUG_MODEL:
+        if winname not in _t:
+            _t.append(winname)
         cv2.imshow(winname, mtx)
+
 
 def SortCoordinate(boxes: list) -> list:
     """
@@ -188,6 +198,7 @@ def ExpandRegion(boxes: list, ExpandSize: tuple):
         if k == 3:
             boxes[k] = list(np.add(np.array(boxes[k]), np.array([-w, h])))
     return boxes
+
 
 def TransformPerspective(boxes, size: tuple):
     """
@@ -238,16 +249,209 @@ def get_lightness(src):
     # print(lightness)
     return lightness
 
+
+def calLineRadians(point1: tuple, point2: tuple) -> float:
+    """
+    计算直线与坐标轴夹角大小（弧度制）
+    :param point1: 点1
+    :param point2: 点2
+    :return: 弧度
+    """
+    h = point1[1] - point2[1]
+    w = point1[0] - point2[0]
+    radians = math.atan2(h, w)
+
+    return radians
+
+
+def calDisplacement(pos: tuple):
+    """
+    计算位移
+    :return: 位移差 pixel
+    """
+    posList.append(pos)
+
+    Len = len(posList)
+    if Len >= 2:
+        posArray = np.array(posList)
+        xList = list(posArray[:, 0])
+        yList = list(posArray[:, 1])
+        xVar = calVariance(xList)
+        yVar = calVariance(yList)
+        print(xVar, yVar)
+        if xVar <= 0.5 and yVar <= 0.5:
+            Dis = 0
+
+        else:
+            XDis = posList[Len - 1][0] - posList[Len - 2][0]
+            YDis = posList[Len - 1][1] - posList[Len - 2][1]
+            Dis = math.sqrt(XDis ** 2 + YDis ** 2)
+        if Len == 10:
+            posList.remove(posList[0])
+    elif Len < 2:
+        Dis = 0
+    return Dis
+
+
+def calCircleCenterDisplacement(pos):
+    circleCenterPosList.append(pos)
+    XDis = circleCenterPosList[0][0] - pos[0]
+    YDis = circleCenterPosList[0][1] - pos[1]
+    Dis = math.sqrt(XDis ** 2 + YDis ** 2)
+    if len(circleCenterPosList) == 2:
+        circleCenterPosList.remove(circleCenterPosList[0])
+    return Dis
+
+
+def calVariance(List):
+    variance = np.var(List)
+    return variance
+
+
+def calPointDistance(point1: tuple, point2: tuple) -> float:
+    # ***** 求两点间距离***** #
+    distance = math.pow((point1[0] - point2[0]), 2) + math.pow((point1[1] - point2[1]), 2)
+    distance = math.sqrt(distance)
+    return distance
+
+
+def calTimeDiffer():
+    """
+    计算时间差
+    :return: 时间差 s
+    """
+    Time = time.time()
+    timeList.append(Time)
+    if len(timeList) == 2:
+        T = timeList[1] - timeList[0]
+        timeList.remove(timeList[0])
+        return T
+    else:
+        return 0
+
+
+def calAvgVelocity(velocity: float, clear: bool = False) -> float:
+    """
+    计算速度平均值
+    :param velocity: 线速度
+    :param clear: 是否清空速度列表
+    :return: 速度平均值
+    """
+    Avg = 0
+    if clear:
+        if len(velocityList) != 0:
+            velocityArray = np.array(velocityList)
+            Avg = np.mean(velocityArray)
+        else:
+            velocityList.clear()
+        return Avg
+    else:
+        velocityList.append(velocity)
+        if len(velocityList) == 20:
+            velocityList.remove(velocityList[0])
+        velocityArray = np.array(velocityList)
+        Avg = np.mean(velocityArray)
+        return Avg
+
+
+def calAvgPoint(inputPoint):
+    avgPoint = ()
+    pointList.append(inputPoint)
+    if len(pointList) == 20:
+        pointList.remove(pointList[0])
+    pointArray = np.array(pointList)
+    avgPoint = np.mean(pointArray, axis=0).tolist()
+    dis = calPointDistance(avgPoint, inputPoint)
+    if dis > 20:
+        pointList.clear()
+    return avgPoint
+
+
+
+
+def calLengthWidthRatio(box):
+    if len(box) > 0:
+        height = calPointDistance(box[0], box[2])  # 轮廓长度
+        weight = calPointDistance(box[0], box[1])  # 轮廓宽度
+
+        if height > weight:
+            height, weight = weight, height
+        if height != 0:
+            ratio = float(weight) / float(height)  # 长宽比
+        if height == 0:
+            ratio = None
+    else:
+        ratio = None
+    return ratio
+
+
+def calCenter(box: list) -> tuple:
+    """
+    计算矩形中心点
+    :param box: 点坐标信息
+    :return: 中心点
+    """
+    center = (int(box[0][0] + (box[2][0] - box[0][0]) / 2), int(box[0][1] + (box[2][1] - box[0][1]) / 2))
+    return center
+
+
+def calMomentCenter(ContoursList):
+    momentCenterPoint = ()
+    if len(ContoursList) != 0:
+        contour = max(ContoursList, key=cv2.contourArea)
+
+        mm = cv2.moments(contour)  # 求轮廓的几何矩
+        cx = mm['m10'] / mm['m00']  # 原点的零阶矩
+        cy = mm['m01'] / mm['m00']
+        momentCenterPoint = (int(cx), int(cy))  # 几何矩中心
+    return momentCenterPoint
+
+
+def recordTarData(velocity, degree, radius, x, y):
+    """
+    速度 与x轴夹角 旋转半径
+    :return:
+    """
+    TarData.append([velocity, degree, radius, x, y])
+    if len(TarData) == 100:
+        TarData.remove(TarData[0])
+
+
+def getTarData(num):
+    if len(TarData) != 0:
+        dataArray = np.array(TarData)[:, num]
+        return dataArray
+    else:
+        return []
+
+
+def setLastWise(wise):
+    Wise[0] = wise
+
+
+def getLastWise():
+    return Wise[0]
+
+
+def counter(zero: False):
+    if zero is True:
+        cnt[0] = 0
+    else:
+        cnt[0] += 1
+    return cnt[0]
+
+
 def abs_max_filter(val, maxval):
-    maxval = abs(maxval)
-    if abs(val) > maxval:
-            res = maxval if val > maxval else -maxval
+    if abs(val) >= abs(maxval):
+        sign = 1 if val > 0 else -1
+        res = sign * abs(maxval)
     else:
         res = val
     return res
 
+
 def abs_min_filter(val, minval):
-    if abs(val)<=abs(minval):
+    if abs(val) <= abs(minval):
         res = 0
     else:
         res = val

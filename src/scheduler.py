@@ -14,6 +14,7 @@ from utils import *
 from vInput import vInput, RadarVInput
 from imageFilter import colorFilter, EnergyColorFilter
 from targetDetector import simpleDetector, EnergyDetector
+from targetPredictor import ArmourPredictor
 from utils import *
 
 from config.devConfig import source, getThreadingSleepTime
@@ -29,7 +30,8 @@ class Scheduler(object):
         '''        
         self.vIn = vInput(source, False)
         self.conn = Connection()
-
+        self.loger = BCPloger()
+        self.mode = 2
     def callback(object):
         '''
         description: 回调函数
@@ -103,7 +105,7 @@ class SentrySchedule(Scheduler):
         filtered_frame = self.cFilter.process(self.frame, "hsv")
         armour_list, lightstrips_num = self.sDetector.process(filtered_frame)
         if isClassifier:
-            armour_list = self.classifier.process(armour_list)
+            armour_list = self.classifier.process(armour_list, )
         decision_info = self.robot_decision.armour_process(armour_list)
         yaw_angle, pitch_angle, isShoot = decision_info
 
@@ -160,25 +162,25 @@ class SentryUpScheduler(SentrySchedule):
         from classifier import NumClassifier
         self.classifier = NumClassifier()
 
-def run(self):
-    os.system('cls' if os.name == 'nt' else "printf '\033c'")
-    while True:
-        self.main_task()
-        cv2.waitKey(1)
+    def run(self):
+        os.system('cls' if os.name == 'nt' else "printf '\033c'")
+        while True:
+            self.main_task()
+            cv2.waitKey(1)
 
-@loger.MainFPSLoger
-def main_task(self):
-    # 心跳数据
-    self.robot.heartbeat()
-    # 获取串口数据和图像
-    self.frame = self.vIn.getFrame()
-    if self.frame is not None:
-        debug_show_window("Input", self.frame)
-        # 自瞄模式
-        if self.conn.status["mode"] == 0:
-            self.task_auto_aiming(isClassifier=False)
-    # self.realsense_dispaly_task()
-    loger.dispaly_loger()
+    @loger.MainFPSLoger
+    def main_task(self):
+        # 心跳数据
+        self.robot.heartbeat()
+        # 获取串口数据和图像
+        self.frame = self.vIn.getFrame()
+        if self.frame is not None:
+            debug_show_window("Input", self.frame)
+            # 自瞄模式
+            if self.conn.status["mode"] == 0:
+                self.task_auto_aiming(isClassifier=False)
+        # self.realsense_dispaly_task()
+        loger.dispaly_loger()
 
 
     def realsense_dispaly_task(self):
@@ -265,43 +267,61 @@ class InfantryScheduler(GroundSchedule):
         '''
         self.eFilter = EnergyColorFilter(False)
         self.eDetector = EnergyDetector()
-
+        # self.ePredictor = EnergyPredictor()
+        self.eTargetPredictor = ArmourPredictor()
         self.robot_decision = decision.InfantryDecision(self.loger)
         self.robot = Infantry(self.conn)
 
     def run(self):
         while True:
-            # 心跳数据
-            self.robot.heartbeat()
-            # 获取串口数据和图像
-            self.frame = self.vIn.getFrame()
-            if self.frame is not None:
-                debug_show_window("Input", self.frame)
-                # mode_ctrl = self.mode_process(self.conn.rx_info)
-                # 自瞄模式
-                # print("mode", self.conn.status["mode"])
-                if self.conn.status["mode"] == 0:
-                    self.task_auto_aiming()
-                    # self.task_auto_Energy()
-                if self.conn.status["mode"] == 2:
-                    self.task_auto_Energy()
-                cv2.waitKey(1)
+            self.main_task()
 
-    def task_auto_Energy(self):
-        '''
-        :breif:根据输入图像自动瞄准能量机关
-        '''
-        filtered_frame, frame = self.eFilter.process(self.frame)
-        armour_list = self.eDetector.process(filtered_frame, frame)
-        decision_info = self.robot_decision.armour_process(armour_list)
-        yaw_angle, pitch_angle, isShoot = decision_info
+    @loger.MainFPSLoger
+    def main_task(self):
+        # 心跳数据
+        self.robot.heartbeat()
+        # 获取串口数据和图像
+        self.frame = self.vIn.getFrame()
+        if self.frame is not None:
+            debug_show_window("Input", self.frame)
+            if self.conn.status["mode"] == 0:
+                self.task_auto_aiming()
 
-        if isShoot == 0xFF:
-            self.robot.gimbal(0, 0)
-            self.robot.mode_ctrl(0)
-        else:
-            self.robot.mode_ctrl(1)
-            self.robot.gimbal(yaw_angle, pitch_angle)
+            if self.conn.status["mode"] == 2:
+                self.task_auto_Energy(self.conn.status["pitch_angle"])
+
+            # loger.dispaly_loger()
+            cv2.waitKey(1)
+
+    def task_auto_Energy(self, yaw_angle):
+        '''
+        :brief:根据输入图像自动瞄准能量机关
+        '''
+        try:
+            predict_armour_list = []
+            filtered_frame, frame = self.eFilter.process(self.frame)
+            # armour_list, data_list = self.eDetector.process(filtered_frame, frame)
+            # if data_list is not None:
+            #     predict_armour_list = self.ePredictor.process(frame, data_list)
+            rect_info = self.eDetector.process(filtered_frame, frame)
+
+            self.eTargetPredictor.process(frame, rect_info)
+            # decision_info = self.robot_decision.armour_process(predict_armour_list, yaw_angle)
+            decision_info = self.robot_decision.armour_process(predict_armour_list)
+            yaw_angle, pitch_angle, isShoot = decision_info
+
+            if isShoot == 0xFF:
+                cnt = counter(False)
+                if cnt == 20:
+                    self.robot.mode_ctrl(2)
+                    counter(True)
+
+            else:
+                counter(True)
+                self.robot.mode_ctrl(1)
+                self.robot.gimbal(yaw_angle, pitch_angle)
+        except Exception as e:
+            print(e)
 
 class RadarScheduler(object):
     def __init__(self):

@@ -20,11 +20,11 @@ FilePath: \BTP&DM\src\config\devConfig.py
 #######################摄像头参数设置###################`###############
 ######################################################################
 # source = 文件名以使用视频文件
-# source = "1.mp4"
+# source = r"D:\PycharmProjects\BTP_DM\2blue.mp4"
 # source = 数字ID以使用摄像头
 # source = DAHENG+数字ID以使用摄像头
-source = 0
-# source = "DAHENG0"
+# source = 0
+source = "DAHENG0"
 
 ######################################################################
 #######################串口参数设置###################################
@@ -39,7 +39,7 @@ TIMEX = 0
 import platform
 sysstr = platform.system()
 if(sysstr =="Windows"):
-    PORTX = "COM29"
+    PORTX = "COM1"
 elif(sysstr == "Linux"):
     PORTX = "/dev/ttyTHS0"
     source = "DAHENG0"

@@ -20,6 +20,6 @@ def get_value(name, defValue=None):
     try:
         return _global_dict[name]
     except:
-        raise KeyError('''
+            raise KeyError('''
         Make sure the key is declared before referencing it.
         You can try launching the program from main.py''')

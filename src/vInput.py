@@ -23,7 +23,7 @@ VINPUT_SOURCE_DAHENG_CAM = 3
 
 
 class vInput(module):
-    def __init__(self, vinput_source=None, hide_controls=True):
+    def __init__(self, vinput_source=None, hide_controls=False):
         # 获取数据源
         self.source = vinput_source
         # 先将数据源类型定位空，之后检测时更新

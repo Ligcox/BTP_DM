@@ -12,14 +12,14 @@ Copyright (c) 2021 Birdiebot R&D department
 import config.globalVarManager as gvm
 # 比赛全局类型设置
 gvm.set_value("CATEGOTY_DEFAULT_TYPE", "category", "red")
-gvm.set_value("DEBUG_MODEL", "DEBUG_SETTING", False)
+gvm.set_value("DEBUG_MODEL", "DEBUG_SETTING", True)
 from scheduler import *
 
 # 启动任务调度器, 选择合适的调度器实现机器人初始化
-scheduler = SentryUpScheduler
+# scheduler = SentryUpScheduler
 # scheduler = SentryDownScheduler
 # scheduler = HeroScheduler
-# scheduler = InfantryScheduler
+scheduler = InfantryScheduler
 # scheduler = RadarScheduler
 
 # 通过任务调度器开启任务

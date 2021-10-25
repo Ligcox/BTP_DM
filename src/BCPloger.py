@@ -31,7 +31,14 @@ log_data = {
     "pitch_angle": [0, time.time()],
     "barrel": [0, time.time()],
     "pathway": [0, time.time()],
-    "bcp_frame": [0, time.time()]
+    "bcp_frame": [0, time.time()],
+
+    "yaw_angle": [0, time.time()],
+    "pitch_angle": [0, time.time()],
+    "x": [0, time.time()],
+    "y": [0, time.time()],
+    "X": [0, time.time()],
+    "Y": [0, time.time()],
 }
 
 class BCPloger():
@@ -124,7 +131,12 @@ class BCPloger():
             log_data["PNP_pitch_angle"] = [res[2], time.time()]
             return res
         return wrapper
-
+    def CoordinateLoger(self,func):
+        def wrapper(*args, **kwargs):
+            res = func(*args, **kwargs)
+            log_data["x"] = [res[0][0], time.time()]
+            log_data["y"] = [res[1][1], time.time()]
+        return wrapper
     def dispaly_loger(self):
         if True:
             sys.stdout.write("{:*^60}\n{:*^60}\n".format("",""))
