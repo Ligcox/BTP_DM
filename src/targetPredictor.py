@@ -14,8 +14,6 @@ from numpy.linalg import inv
 from BCPloger import *
 from targetDetector import Target
 
-loger = BCPloger()
-
 
 class Predictor(module):
     name = "Empty Predictor Control"
@@ -58,30 +56,6 @@ class Predictor(module):
             return True
         else:
             return False
-
-    def convertDataFormat(self, rect, cvtRectToDataList=True, cvtRectToBoxPoints=True):
-        dataList = []
-        box = []
-        if len(rect) != 0:
-            if cvtRectToDataList is True:
-                data = [None for i in range(ROI_DATA_LENGTH)]
-                data[ROI_RECT] = rect
-
-                data[ROI_BOX] = np.int0(cv2.boxPoints(data[ROI_RECT]))
-
-                data[PNP_INFO] = self.pnp_info(data[ROI_BOX])
-
-                if data[PNP_INFO] is not None:
-                    dataList.append(data)
-            elif cvtRectToBoxPoints is True:
-                box = cv2.boxPoints(rect)  # 转换为long类型
-                box = np.int0(box)
-        if cvtRectToDataList is True:
-            return dataList
-        elif cvtRectToBoxPoints is True:
-            return box
-        else:
-            return []
 
 
 class KalmanFilter(object):
@@ -340,19 +314,25 @@ class ArmourPredictor(Predictor):
         self.advance_list = [0 for i in range(10)]
         super().__init__(hide_controls)
 
-    def process(self, frame, rect_info: Target):
-        if rect_info.target_exist == True:
-            down_time = self.calAdvance(rect_info.rect_pnp_info)
-            X, Y = self.kalmanPredict(rect_info.rect_rotate_info[0], down_time)
-            rect_rotate_info = rect_info.rect_rotate_info
-            predict_rect_rotate_info = ((X, Y), rect_rotate_info[1], rect_rotate_info[2])
-            box = np.int0(cv2.boxPoints(predict_rect_rotate_info))  # 转换为long类型
-            self.updateProcess(frame, rects=box, points=None)
-            return X, Y
+    def process(self, frame, target: Target):
+        try:
+            if target.target_exist == True:
+                down_time = self.calAdvance(target.rect_info[PNP_INFO])
+                X, Y = self.kalmanPredict(target.rect_info[ROI_RECT][0], down_time)
+                rect_rotate_info = target.rect_info[ROI_RECT]
+                predict_rect_rotate_info = ((X, Y), rect_rotate_info[1], rect_rotate_info[2])
+                box = np.int0(cv2.boxPoints(predict_rect_rotate_info))  # 转换为long类型
+                predict_armour_list = target.cvtToBoxPnp(box)
+                self.updateProcess(frame, rects=box, points=None)
+            else:
+                predict_armour_list = []
+            return predict_armour_list
+        except Exception as e:
+            print(e)
 
     def kalmanPredict(self, coordinate, down_time):
         X, Y = int(coordinate[0]), int(coordinate[1])
-        cur_state = np.array([X, Y, (X - self.pre_X) / 0.0366, (Y - self.pre_Y) / 0.0366])
+        cur_state = np.array([X, Y, (X - self.pre_X) / 0.0166, (Y - self.pre_Y) / 0.0166])
 
         # Gaussian Noise
         measure_noise = np.random.multivariate_normal([0, 0, 0, 0], self.controls["N"])
@@ -364,8 +344,7 @@ class ArmourPredictor(Predictor):
         self.pre_X, self.pre_Y = X, Y
         return self.kf_model.cur_best_estimate_x[0], self.kf_model.cur_best_estimate_x[1]
 
-    def calAdvance(self, pnp_info):
-        ball_speed = 15
+    def calAdvance(self, pnp_info, ball_speed=15):
         distance = int(pnp_info[0])
         ration = radians(pnp_info[2])
         Y = distance * sin(ration)
@@ -374,8 +353,6 @@ class ArmourPredictor(Predictor):
         advance = fly_time + down_time
         self.advance_list.remove(self.advance_list[0])
         self.advance_list.append(advance)
-        advance = self.np_move_avg(np.array(self.advance_list), 3)[9]
-        return advance
+        advance = np.convolve(np.array(self.advance_list), np.ones(3)/3, mode="same")[9]
 
-    def np_move_avg(self, a, n, mode="same"):
-        return (np.convolve(a, np.ones(n) / n, mode=mode))
+        return advance

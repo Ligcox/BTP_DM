@@ -21,22 +21,21 @@ Camera_intrinsic = {
 class Target:
     def __init__(self, name: str, rect_info=[], armour_size=[], threshold_interval=0.08):
         self.name = name
-        self.rect_rotate_info = rect_info  # [(x,y),(w,h),angle]
-        self.rect_point_info = None  # [(x1,y1),(x2,y2),(x3,y3)，(x4,y4)]
-        self.rect_pnp_info = None
+        self.rect_info = [rect_info, None, None]
         self.armour_size = armour_size
         self.target_exist = False
         self._threshold_interval = threshold_interval
-        self._start_time = time.time()
-        self._latest_time = 0
+        self._timer = time.time()
 
     def checkTarget(self, latest_rect_info):
-        if len(self.rect_rotate_info) == 0:
-            self.updateBox(latest_rect_info)
+        if len(self.rect_info[ROI_RECT]) == 0:
+            self.updateRectInfo(latest_rect_info)
+            self.updateBoxState()
             update_obj = False
         elif self.checkInterval():
             if self.checkIOU(latest_rect_info):
-                self.updateBox(latest_rect_info)
+                self.updateRectInfo(latest_rect_info)
+                self.updateBoxState()
                 update_obj = False
             else:
                 update_obj = True
@@ -44,26 +43,27 @@ class Target:
             update_obj = True
         return update_obj
 
-    def updateBox(self, latest_box_info):
-        try:
-            self.rect_rotate_info = latest_box_info
-            self.cvtToBoxPoint()
-            self.cvtToBoxPnp()
-            self.target_exist = True
-            self._start_time = time.time()
-        except Exception:
-            print(1)
+    def updateRectInfo(self, latest_box_info):
+        self.rect_info[ROI_RECT] = latest_box_info  # [(x,y),(w,h),angle]
+        self.rect_info[ROI_BOX] = self.cvtToBoxPoint(latest_box_info)  # [(x1,y1),(x2,y2),(x3,y3)，(x4,y4)]
+        self.rect_info[PNP_INFO] = self.cvtToBoxPnp(self.rect_info[ROI_BOX])  # [distance, int(yaw_angle), int(pitch_angle)]
+
+
+    def updateBoxState(self):
+        self.target_exist = True
+        self._timer = time.time()
 
     def checkInterval(self):
         latest_time = time.time()
-        interval = latest_time - self._start_time
+        interval = latest_time - self._timer
         if interval <= self._threshold_interval:
             return True
         else:
             return False
 
     def checkIOU(self, latest_box_info, threshold=0.5):
-        original_box = self.rect_rotate_info
+        """检查图像框交并补"""
+        original_box = self.rect_info[ROI_RECT]
         int_pts = cv2.rotatedRectangleIntersection(original_box, latest_box_info)[1]
         if int_pts is not None:
             area1, area2 = original_box[1][0] * original_box[1][1], latest_box_info[1][0] * latest_box_info[1][1]
@@ -77,12 +77,13 @@ class Target:
         elif iou < threshold:
             return False
 
-    def cvtToBoxPoint(self):
-        if self.rect_rotate_info:
-            box = cv2.boxPoints(self.rect_rotate_info)  # 转换为long类型
-            self.rect_point_info = np.int0(box)
+    def cvtToBoxPoint(self,box_info):
+        """数据格式转换，转换至目标角点信息"""
+        rect_point_info = np.int0(cv2.boxPoints(box_info))  # 转换为long类型
+        return rect_point_info
 
-    def cvtToBoxPnp(self):
+    def cvtToBoxPnp(self, box_info):
+        """数据格式转换，转换至目标位姿信息"""
         w, h = self.armour_size
         w, h = w / 2, h / 2
         world_coordinate = np.array([
@@ -93,7 +94,7 @@ class Target:
 
         ], dtype=np.float64)
         # 像素坐标
-        pnts = np.array(self.rect_point_info, dtype=np.float64)
+        pnts = np.array(box_info, dtype=np.float64)
         # rotation_vector 旋转向量 translation_vector 平移向量
         success, rvec, tvec = cv2.solvePnP(world_coordinate, pnts, Camera_intrinsic["mtx"], Camera_intrinsic["dist"])
         distance = np.linalg.norm(tvec)
@@ -109,8 +110,8 @@ class Target:
         proj_matrix = np.hstack((rvec_matrix, rvec))
         eulerAngles = -cv2.decomposeProjectionMatrix(proj_matrix)[6]  # 欧拉角
         pitch, roll, yaw = eulerAngles[0], eulerAngles[1], eulerAngles[2]
-        self.rect_pnp_info = [distance, int(yaw_angle), int(pitch_angle)]
-
+        rect_pnp_info = [distance, int(yaw_angle), int(pitch_angle)]
+        return rect_pnp_info
         # print(f"{distance},{yaw_angle},{pitch_angle}")
 
 
@@ -352,53 +353,43 @@ class EnergyDetector(module):
         strip_list, strip_center_list = self.findStrip(contours)  # 能量机关寻找灯条和灯条中心
 
         # 灯条存在
-        if len(strip_list[Energy_Strip]) != 0:
-            energy_target_center, energy_target_rect = self.detectTarget(strip_list[Energy_Strip],
-                                                                         processed_img.copy())  # 灯条筛选
+        # if len(strip_list[Energy_Strip]) != 0:
+            # energy_target_center, energy_target_rect = self.detectTarget(strip_list[Energy_Strip],
+            #                                                              processed_img.copy())  # 灯条筛选
 
             # 估计旋转圆圆心，计算能量机关目标当前旋转角度
-            assumption_circle_center, origin_radian = self.calRotatingCircleCenter(
-                strip_center_list[Energy_Strip_Point], energy_target_center)
-
-            # 数据合并进列表
-            circle_center = strip_center_list[Circle_Center_Point]
-            energy_target = [energy_target_center, energy_target_rect]
-            data_list = [origin_radian, circle_center, energy_target]
+            # assumption_circle_center, origin_radian = self.calRotatingCircleCenter(
+            #     strip_center_list[Energy_Strip_Point], energy_target_center)
+            #
+            # # 数据合并进列表
+            # circle_center = strip_center_list[Circle_Center_Point]
+            # energy_target = [energy_target_center, energy_target_rect]
+            # data_list = [origin_radian, circle_center, energy_target]
             # 图像绘制
-            if len(energy_target_rect) > 0:
-                new_obj = self.target.checkTarget(energy_target_rect)
-                if new_obj is True:
-                    self.target = Target("energyArmour", energy_target_rect, armour_size=[230, 127])
-            elif len(energy_target_rect) == 0:
-                self.target = Target("energyArmour", armour_size=[230, 127])
-            self.updateProcess(origin_img, self.target.rect_point_info, (circle_center, energy_target_center))
-        return self.target
-            # predictTargetCenter, predictRect = self.predictTarget(stripCenterList[Circle_Center_Point],
-            #                                                       energyTargetCenter, originRadian, energyTargetRect)
-        # 灯条不存在
-        # else:
-        #     # 调整云台角度，寻找灯条
-        #     energy_target_rect, data_list = (), None
-        # # 数据格式转换
-        #
-        # target_list = self.convertDataFormat(energy_target_rect, cvtRectToBoxPoints=False)
-        # return target_list, data_list
-
-        # target_rect = self.detectTarget(strip_list[Circle_Strip])
-        # if len(strip_list[Circle_Strip]) > 0:
-        #     new_obj = self.target.checkTarget(target_rect)
-        #     if new_obj is True:
-        #         self.target = Target("energyArmour", target_rect, armour_size=[60, 70])
-        #
-        #     self.updateProcess(origin_img, self.target.rect_point_info,
-        #                        (strip_center_list[Circle_Center_Point], strip_center_list[Circle_Center_Point]))
-        # elif len(strip_list[Circle_Strip]) == 0:
-        #     self.target = Target("energyArmour", armour_size=[60, 70])
-        #
-        # # 灯条存在
-        # if len(strip_list[Energy_Strip]) != 0:
-        #     pass
+        #     if len(energy_target_rect) > 0:
+        #         new_obj = self.target.checkTarget(energy_target_rect)
+        #         if new_obj is True:
+        #             self.target = Target("energyArmour", energy_target_rect, armour_size=[230, 127])
+        #     elif len(energy_target_rect) == 0:
+        #         self.target = Target("energyArmour", armour_size=[230, 127])
+        #     self.updateProcess(origin_img, self.target.rect_point_info, (circle_center, energy_target_center))
         # return self.target
+
+        target_rect = self.detectTarget(strip_list[Circle_Strip])
+        if len(strip_list[Circle_Strip]) > 0:
+            new_obj = self.target.checkTarget(target_rect)
+            if new_obj is True:
+                self.target = Target("energyArmour", target_rect, armour_size=[60, 70])
+
+            self.updateProcess(origin_img, self.target.rect_info[ROI_BOX],
+                               (strip_center_list[Circle_Center_Point], strip_center_list[Circle_Center_Point]))
+        elif len(strip_list[Circle_Strip]) == 0:
+            self.target = Target("energyArmour", armour_size=[60, 70])
+
+        # 灯条存在
+        if len(strip_list[Energy_Strip]) != 0:
+            pass
+        return self.target
 
     def enhanceContour(self, image):
         contours = ()
@@ -450,22 +441,22 @@ class EnergyDetector(module):
         """
         pass
 
-    # def detectTarget(self, stripList):
-    #     targetRect = []
-    #     if stripList:
-    #         stripList = min(stripList, key=cv2.contourArea)
-    #         targetRect = cv2.minAreaRect(stripList)
-    #
-    #     return targetRect
+    def detectTarget(self, stripList):
+        targetRect = []
+        if stripList:
+            stripList = min(stripList, key=cv2.contourArea)
+            targetRect = cv2.minAreaRect(stripList)
 
-    def detectTarget(self, strip_list, image):
-        energy_target_center = ()
-        energy_target_rect = []
-        if len(strip_list) != 0:
-            energy_target, energy_target_rect = self.detectEnergyTarget(strip_list, image.copy())
-            energy_target_center = calMomentCenter(energy_target)
+        return targetRect
 
-        return energy_target_center, energy_target_rect
+    # def detectTarget(self, strip_list, image):
+    #     energy_target_center = ()
+    #     energy_target_rect = []
+    #     if len(strip_list) != 0:
+    #         energy_target, energy_target_rect = self.detectEnergyTarget(strip_list, image.copy())
+    #         energy_target_center = calMomentCenter(energy_target)
+
+    # return energy_target_center, energy_target_rect
 
     def detectEnergyTarget(self, energy_strip_list, image):
         target_list = []
@@ -486,7 +477,8 @@ class EnergyDetector(module):
             # 调节寻找装甲板大小
 
             contours_dilate, hierarchy = cv2.findContours(target_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            target_list = self.filterArea(contours_dilate, keys=['area_lower_value_energyTar', 'area_upper_value_energyTar'])
+            target_list = self.filterArea(contours_dilate,
+                                          keys=['area_lower_value_energyTar', 'area_upper_value_energyTar'])
             if len(target_list) != 0:
                 c = min(target_list, key=cv2.contourArea)
                 target_rect = cv2.minAreaRect(c)

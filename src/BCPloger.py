@@ -32,13 +32,6 @@ log_data = {
     "barrel": [0, time.time()],
     "pathway": [0, time.time()],
     "bcp_frame": [0, time.time()],
-
-    "yaw_angle": [0, time.time()],
-    "pitch_angle": [0, time.time()],
-    "x": [0, time.time()],
-    "y": [0, time.time()],
-    "X": [0, time.time()],
-    "Y": [0, time.time()],
 }
 
 class BCPloger():

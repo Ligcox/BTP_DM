@@ -25,7 +25,6 @@ class Decision(module):
         super().__init__(hide_controls)
         self.robot = robot
         self.armour_time_queue = Queue()
-        self.gimbal_filter_Kalman_init()
         self.last_yaw_angle, self.last_pitch_angle = 0, 0
 
     def empty_disable_time(self, disableTime=1):
@@ -43,83 +42,6 @@ class Decision(module):
         else:
             self.last_yaw_angle, self.last_pitch_angle = 0, 0
         return None
-
-    def gimbal_filter_Kalman_init(self):
-        '''
-        description: 卡尔曼滤波函数初始化
-        param {*}
-        return {*}
-        '''
-        # 初始化测量坐标和鼠标运动预测的数组
-        self.last_measurement = self.current_measurement = np.array(
-            (2, 1), np.float32)
-        self.last_prediction = self.current_prediction = np.zeros(
-            (2, 1), np.float32)
-
-        # 4：状态数，包括（x，y，dx，dy）坐标及速度（每次移动的距离）；2：观测量，能看到的是坐标值
-        self.kalman = cv2.KalmanFilter(4, 2)
-        self.kalman.measurementMatrix = np.array(
-            [[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)  # 系统测量矩阵
-        self.kalman.transitionMatrix = np.array(
-            [[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)  # 状态转移矩阵
-        self.kalman.processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [
-            0, 0, 0, 1]], np.float32) * 0.03  # 系统过程噪声协方差
-
-    def gimbal_filter_Kalman(self, yaw, pitch):
-        '''
-        description: 卡尔曼滤波函数
-        param {*yaw: 云台偏转yaw角度, *pitch: 云台偏转pitch角度}
-        return {*cpx: 补偿后的云台偏转yaw角度, *cpy:补偿后的云台偏转pitch角度}
-        '''
-        self.last_prediction = self.current_prediction  # 把当前预测存储为上一次预测
-        self.last_measurement = self.current_measurement  # 把当前测量存储为上一次测量
-        self.current_measurement = np.array(
-            [[np.float32(yaw)], [np.float32(pitch)]])  # 当前测量
-        self.kalman.correct(self.current_measurement)  # 用当前测量来校正卡尔曼滤波器
-        self.current_prediction = self.kalman.predict()  # 计算卡尔曼预测值，作为当前预测
-
-        # 当前预测坐标
-        cpx, cpy = self.current_prediction[:2]
-
-        return cpx, cpy
-
-    def adjust_ballistics(self, targetInfo, BarrelPtzOffSetY, BallSpeed):
-        """
-        brief : 弹道补偿
-        targetInfo : 包括 Angle 目标角度  ,distance 目标距离
-        BarrelPtzOffSetY : 相机中心和炮管中心距离 向上为正
-        BallSpeed : 弹丸速度
-        """
-        ration = math.radians(targetInfo.Angle)
-        distance = targetInfo.distance
-
-        Z = distance * math.cos(ration)
-        Y = distance * math.sin(ration)
-
-        DownTime = Y / 1000.0 / BallSpeed  # 下坠时间
-        offsetGravity = 0.5 * 9.8 * DownTime ** 2 * 1000  # 下落距离
-        Y += offsetGravity
-        if BarrelPtzOffSetY != 0:
-            alpha = math.asin(BarrelPtzOffSetY / (Y * Y + Z * Z))
-
-            if Y < BarrelPtzOffSetY:
-                "目标在炮管中心下方"
-                Beta = math.atan(-Y / Z)
-                Ration = -(-alpha + Beta)
-                NeedAngle = math.degrees(Ration)
-
-            elif Y < 0:
-                "目标在相机中心和炮管中心夹角区域"
-                Beta = math.atan(Y / Z)
-                Ration = -(alpha - Beta)
-                NeedAngle = math.degrees(Ration)
-
-            else:
-                "目标在相机中心上方"
-                Beta = math.atan(Y / Z)
-                Ration = (Beta - alpha)
-                NeedAngle = math.degrees(Ration)
-        return NeedAngle
 
     def pnp_error_compensation(self, ROI_RECT, distance):
         '''
@@ -288,7 +210,6 @@ class GroundDecison(Decision):
 
             yaw_angle = abs_max_filter(yaw_angle, 3)
             pitch_angle = abs_max_filter(pitch_angle, 3)
-
             isShoot = 1
 
             self.last_yaw_angle = yaw_angle
@@ -328,28 +249,37 @@ class InfantryDecision(GroundDecison):
         self.armour_time_queue = Queue()
         super().__init__(robot, hide_controls)
 
-        def energy_process(self, armour_list):
-            '''
-            :breif: 能量机关识别任务，识别点亮的能量机关
-            :return: yaw、pitch偏转角度
-            '''
-            yaw_angle, pitch_angle, isShoot = 0, 0, 0
-            # 先清除失效时间
-            self.empty_disable_time()
+    def energy_process(self, pnp_list, gimbal_pitch):
+        '''
+        :brief: 能量机关识别任务，识别点亮的能量机关
+        :return: yaw、pitch偏转角度
+        '''
+        yaw_angle, pitch_angle, isShoot = 0, 0, 0
+        # 先清除失效时间
+        self.empty_disable_time()
 
-            if len(armour_list) != 0:
-                ROI_RECT, ROI_BOX, PNP_LIST = armour_list[0]
-                distance, yaw_angle, pitch_angle = PNP_LIST
+        if len(pnp_list) != 0:
+            distance, yaw_angle, pitch_angle = pnp_list
+            adjust_angle = self.adjustBallistics(distance,gimbal_pitch=45,ball_speed=15)
+            yaw_angle += self.getControlVal("yaw_angle_offset")
+            pitch_angle = self.getControlVal("pitch_angle_offset") + yaw_angle
 
-                if distance>4000:
-                    pitch_angle += 0.2*distance/1000
+            isShoot = 1
 
-                yaw_angle += self.getControlVal("yaw_angle_offset")
-                pitch_angle += self.getControlVal("pitch_angle_offset")
+        # 未发现目标，由下位机接管
+        else:
+            isShoot = 0
+        return yaw_angle, pitch_angle, isShoot
 
-                isShoot = 1
-
-            # 未发现目标，由下位机接管
-            else:
-                isShoot = 0
-            return yaw_angle, pitch_angle, isShoot
+    def adjustBallistics(self, distance, gimbal_pitch,ball_speed):
+        g = 9.778
+        ration = math.radians(gimbal_pitch)
+        Z = distance * math.cos(ration)
+        Y = distance * math.sin(ration)
+        for i in range(20):
+            down_time = distance / 800.0 / ball_speed  # 下坠时间
+            offset_gravity = 0.5 * g * down_time ** 2 * 1000  # 下落距离
+            new_angle = math.atan((Y+offset_gravity)/Z)
+            distance = abs(Z/math.cos(new_angle))
+        adjust_angle = math.degrees(new_angle)-gimbal_pitch
+        return adjust_angle

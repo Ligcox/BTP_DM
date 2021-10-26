@@ -285,7 +285,8 @@ class InfantryScheduler(GroundSchedule):
         if self.frame is not None:
             debug_show_window("Input", self.frame)
             if self.conn.status["mode"] == 0:
-                self.task_auto_aiming()
+                # self.task_auto_aiming()
+                self.task_auto_Energy(self.conn.status["pitch_angle"])
 
             if self.conn.status["mode"] == 2:
                 self.task_auto_Energy(self.conn.status["pitch_angle"])
@@ -293,7 +294,7 @@ class InfantryScheduler(GroundSchedule):
             # loger.dispaly_loger()
             cv2.waitKey(1)
 
-    def task_auto_Energy(self, yaw_angle):
+    def task_auto_Energy(self, gimbal_pitch):
         '''
         :brief:根据输入图像自动瞄准能量机关
         '''
@@ -305,9 +306,9 @@ class InfantryScheduler(GroundSchedule):
             #     predict_armour_list = self.ePredictor.process(frame, data_list)
             rect_info = self.eDetector.process(filtered_frame, frame)
 
-            self.eTargetPredictor.process(frame, rect_info)
+            predict_armour_list = self.eTargetPredictor.process(frame, rect_info)
             # decision_info = self.robot_decision.armour_process(predict_armour_list, yaw_angle)
-            decision_info = self.robot_decision.armour_process(predict_armour_list)
+            decision_info = self.robot_decision.energy_process(predict_armour_list , gimbal_pitch)
             yaw_angle, pitch_angle, isShoot = decision_info
 
             if isShoot == 0xFF:

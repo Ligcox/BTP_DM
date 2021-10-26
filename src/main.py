@@ -11,7 +11,7 @@ Copyright (c) 2021 Birdiebot R&D department
 
 import config.globalVarManager as gvm
 # 比赛全局类型设置
-gvm.set_value("CATEGOTY_DEFAULT_TYPE", "category", "red")
+gvm.set_value("CATEGOTY_DEFAULT_TYPE", "category", "blue")
 gvm.set_value("DEBUG_MODEL", "DEBUG_SETTING", True)
 from scheduler import *
 
