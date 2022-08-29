@@ -38,7 +38,6 @@ BTP&DM包含了以下内容：
 ---
 为了帮助快速上手BTPDM，你可以参考下面的视频教程：
 > [【SUES木鸢机甲工作室】RoboMaster算法组基础培训](https://www.bilibili.com/video/BV1La4y1475w)  
-> [【SUES木鸢机甲工作室】RoboMasterBTPDM开源框架讲解（更新中...）](https://www.bilibili.com/video/BV1m64y1t7qb)  
 > [2021RoboMaster青年工程师大会哨兵机器人答辩](https://www.bilibili.com/video/BV1nq4y1n7JV?p=7)  
 
 欢迎访问BTPDM的[wiki](https://github.com/Ligcox/BTP_DM/wiki)页面，你可以在这里发现BTPDM的详细框架设计及功能模块说明
